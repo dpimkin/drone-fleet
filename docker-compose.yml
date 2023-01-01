@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  app:
+    container_name: drone-fleet
+    image: dpimkin/drone-fleet:1.0.0
+    expose:
+      - "8088"
+      - "9099"
+    restart: always
