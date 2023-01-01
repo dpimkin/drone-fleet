@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: drone-fleet
+springdoc:
+  use-management:
+    port: true
+server:
+  port: 8088
+management:
+  server:
+    port: 9099
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
