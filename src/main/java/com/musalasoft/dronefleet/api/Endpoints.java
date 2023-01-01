@@ -5,7 +5,6 @@ public abstract class Endpoints {
 
     public static final String DISPATCH_ENDPOINT = API_VERSION_PREFIX + "dispatch";
     public static final String DRONE_CRUD_ENDPOINT = API_VERSION_PREFIX + "drone";
-    public static final String MEDICATION_CRUD_ENDPOINT = API_VERSION_PREFIX + "medication";
 
     private Endpoints() {
     }

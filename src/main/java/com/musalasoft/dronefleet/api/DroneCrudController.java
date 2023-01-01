@@ -1,11 +1,13 @@
 package com.musalasoft.dronefleet.api;
 
-import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.domain.DroneDTO;
+import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.domain.UpdateDroneRequestDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,7 +57,7 @@ public class DroneCrudController {
      * Register drone
      */
     @PostMapping
-    Mono<ResponseEntity<String>> registerDrone(@RequestBody RegisterDroneRequestDTO request,
+    Mono<ResponseEntity<String>> registerDrone(@RequestBody @Valid RegisterDroneRequestDTO request,
                                                @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
         // TODO implement
         return Mono.just(ResponseEntity.ok().build());
@@ -94,7 +96,7 @@ public class DroneCrudController {
      */
     @PutMapping(path = "{droneId}")
     Mono<ResponseEntity<String>> updateDrone(@PathVariable("droneId") String droneId,
-                                             @RequestBody UpdateDroneRequestDTO request,
+                                             @RequestBody @Validated UpdateDroneRequestDTO request,
                                              @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
         // TODO implement
         return Mono.just(ResponseEntity.ok().build());
