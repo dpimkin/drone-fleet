@@ -55,8 +55,8 @@ public class DroneController {
         if (limit < 1) {
             limit = 20;
         }
-        // TODO return droneService.findAll(Math.min(limit, MAX_QUERY_SIZE));
-        return Flux.empty();
+
+        return droneService.findDrones(limit).map(entity -> mapper.mapDroneEntity(entity));
     }
 
     /**

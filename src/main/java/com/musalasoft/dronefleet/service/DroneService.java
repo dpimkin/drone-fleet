@@ -3,13 +3,14 @@ package com.musalasoft.dronefleet.service;
 import com.musalasoft.dronefleet.domain.DroneState;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.persistence.DroneEntity;
-import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
 import com.musalasoft.dronefleet.persistence.DroneRepository;
+import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
 import com.musalasoft.dronefleet.service.OperationLogService.GenericIdempotentOperationContent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,6 +44,12 @@ public class DroneService {
     public Mono<DroneEntity> findDroneBySn(String sn) {
         log.info("fetching drone by s/n '{}'", sn);
         return droneRepository.findBySerialNumber(sn);
+    }
+
+    @Transactional(readOnly = true)
+    public Flux<DroneEntity> findDrones(int limit) {
+        return droneRepository.findAll()
+                .take(limit);
     }
 
 

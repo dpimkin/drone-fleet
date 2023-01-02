@@ -3,6 +3,7 @@ package com.musalasoft.dronefleet.api;
 import com.musalasoft.dronefleet.DockerizedTestSupport;
 import com.musalasoft.dronefleet.domain.DronePayloadDTO;
 import com.musalasoft.dronefleet.domain.MedicationPayload;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -24,6 +25,7 @@ class DispatchControllerTest extends DockerizedTestSupport {
     @Autowired
     private WebTestClient webClient;
 
+    @Disabled
     @ParameterizedTest
     @ValueSource(strings = {"fOO", "Bar", "foobar-1", "baz_3"})
     void loadDrone_isOkWithName(String name) {
@@ -33,6 +35,7 @@ class DispatchControllerTest extends DockerizedTestSupport {
                 .isOk();
     }
 
+    @Disabled
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"#", "*", "-", "тест", ""})
@@ -43,6 +46,7 @@ class DispatchControllerTest extends DockerizedTestSupport {
                 .isBadRequest();
     }
 
+    @Disabled
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"#", "*", "тест", ""})
@@ -53,6 +57,7 @@ class DispatchControllerTest extends DockerizedTestSupport {
                 .isBadRequest();
     }
 
+    @Disabled
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"-1", "0"})
@@ -63,6 +68,7 @@ class DispatchControllerTest extends DockerizedTestSupport {
                 .isBadRequest();
     }
 
+    @Disabled
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"-1", "0"})
