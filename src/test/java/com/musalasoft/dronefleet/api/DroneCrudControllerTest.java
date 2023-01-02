@@ -1,6 +1,6 @@
 package com.musalasoft.dronefleet.api;
 
-import com.musalasoft.dronefleet.DockerizedSupport;
+import com.musalasoft.dronefleet.DockerizedTestSupport;
 import com.musalasoft.dronefleet.domain.DroneModelType;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import org.junit.jupiter.api.Disabled;
@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
@@ -20,8 +19,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
-// TODO @TestPropertySource(properties = "logging.level.org.springframework.data.mongodb.core.MongoTemplate=TRACE")
-class DroneCrudControllerTest extends DockerizedSupport {
+class DroneCrudControllerTest extends DockerizedTestSupport {
 
     private static int droneSerialNumberCounter = 1;
 

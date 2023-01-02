@@ -1,5 +1,6 @@
 package com.musalasoft.dronefleet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -9,24 +10,21 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 @Testcontainers
-public abstract class DockerizedSupport {
-    //private static final String MONGODB_IMAGE = "mongo:5.0.14";
+public abstract class DockerizedTestSupport {
     private static final String POSTGRESQL_IMAGE = "postgres:13.7-alpine";
 
     @Container
     final static PostgreSQLContainer<?> POSTGRES = createDatabaseInstance();
 
 
-//    @Container
-//    private static MongoDBContainer mongoDBContainer = new MongoDBContainer(MONGODB_IMAGE)
-//            .withReuse(true);
 
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         // region Flyway
-        registry.add("spring.flyway.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.flyway.url", DockerizedTestSupport::getPostgresqlUrlForFlyway);
         registry.add("spring.flyway.user", POSTGRES::getUsername);
         registry.add("spring.flyway.password", POSTGRES::getPassword);
         registry.add("spring.flyway.driver-class-name", POSTGRES::getDriverClassName);
@@ -34,7 +32,7 @@ public abstract class DockerizedSupport {
 
 
         // region R2DBC
-        registry.add("spring.r2dbc.url", () -> POSTGRES.getJdbcUrl().replace("jdbc", "r2dbc:pool"));
+        registry.add("spring.r2dbc.url", DockerizedTestSupport::getPostgresqlUrlForR2dbc);
         registry.add("spring.r2dbc.username", POSTGRES::getUsername);
         registry.add("spring.r2dbc.password", POSTGRES::getPassword);
         // endregion
@@ -52,5 +50,17 @@ public abstract class DockerizedSupport {
         return container;
     }
 
+
+    private static String getPostgresqlUrlForFlyway() {
+        var result = POSTGRES.getJdbcUrl();
+        log.info("spring.flyway.url={}", result);
+        return result;
+    }
+
+    private static String getPostgresqlUrlForR2dbc() {
+        var result = POSTGRES.getJdbcUrl().replace("jdbc", "r2dbc:pool");
+        log.info("spring.r2dbc.url={}", result);
+        return result;
+    }
 
 }

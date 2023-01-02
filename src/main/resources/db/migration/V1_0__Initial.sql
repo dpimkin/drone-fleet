@@ -15,6 +15,7 @@ CREATE SEQUENCE idempotent_operation_seq AS BIGINT;
 CREATE TABLE idempotent_operation(
     id              BIGINT PRIMARY KEY DEFAULT nextval('idempotent_operation_seq'),
     idempotency_key VARCHAR(64),
+    status          INTEGER,
     created         TIMESTAMP
 );
 

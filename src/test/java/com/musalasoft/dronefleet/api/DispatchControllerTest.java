@@ -1,6 +1,6 @@
 package com.musalasoft.dronefleet.api;
 
-import com.musalasoft.dronefleet.DockerizedSupport;
+import com.musalasoft.dronefleet.DockerizedTestSupport;
 import com.musalasoft.dronefleet.domain.DronePayloadDTO;
 import com.musalasoft.dronefleet.domain.MedicationPayload;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,7 +19,7 @@ import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-class DispatchControllerTest extends DockerizedSupport {
+class DispatchControllerTest extends DockerizedTestSupport {
 
     @Autowired
     private WebTestClient webClient;
