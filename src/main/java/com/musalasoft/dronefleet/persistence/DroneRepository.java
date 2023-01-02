@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface ReactiveDroneRepository extends ReactiveCrudRepository<DroneEntity, Long> {
+public interface DroneRepository extends ReactiveCrudRepository<DroneEntity, Long> {
 
     Mono<DroneEntity> findBySerialNumber(String serialNumber);
 

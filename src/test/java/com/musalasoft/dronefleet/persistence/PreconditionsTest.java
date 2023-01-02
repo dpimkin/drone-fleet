@@ -40,7 +40,7 @@ class PreconditionsTest {
 
 
     @Autowired
-    ReactiveDroneRepository droneRepository;
+    DroneRepository droneRepository;
 
     @Autowired
     OperationLogRepository operationLogRepository;

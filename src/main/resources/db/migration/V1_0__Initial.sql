@@ -1,5 +1,4 @@
 CREATE SEQUENCE drone_seq AS BIGINT;
-
 CREATE TABLE drone
 (
     id          BIGINT PRIMARY KEY DEFAULT nextval('drone_seq'),
@@ -10,33 +9,29 @@ CREATE TABLE drone
     drone_type  varchar(30)  NOT NULL,
     drone_state varchar(30)  NOT NULL
 );
-
-
 CREATE UNIQUE INDEX sn_unique ON drone (sn);
 
-CREATE SEQUENCE idempotent_operation_seq AS BIGINT;
+CREATE SEQUENCE medication_seq AS BIGINT;
+CREATE TABLE medication_payload
+(
+    id       BIGINT PRIMARY KEY DEFAULT nextval('medication_seq'),
+    drone_id BIGINT REFERENCES drone NOT NULL,
+    code     varchar(64)             NOT NULL,
+    "name"   varchar(150)            NOT NULL,
+    weight   INTEGER                 NOT NULL,
+    qty      INTEGER                 NOT NULL,
+    image    VARCHAR(4096)
+);
+CREATE INDEX medication_drone_ref ON medication_payload (drone_id);
 
+
+CREATE SEQUENCE operation_log_seq AS BIGINT;
 CREATE TABLE operation_log
 (
-    id              BIGINT PRIMARY KEY DEFAULT nextval('idempotent_operation_seq'),
+    id              BIGINT PRIMARY KEY DEFAULT nextval('operation_log_seq'),
     idempotency_key VARCHAR(64),
     status          INTEGER,
     created         TIMESTAMP
 );
-
 CREATE UNIQUE INDEX idempotency_key_unique ON operation_log (idempotency_key);
 
-
-
--- TODO
--- INSERT INTO token(payload) VALUES ('FOO');
--- INSERT INTO token(payload) VALUES ('BAR');
---
--- CREATE SEQUENCE calendar_day_seq AS INTEGER;
---
--- CREATE TABLE calendar_day(
---                              id          INTEGER PRIMARY KEY DEFAULT nextval('calendar_day_seq'),
---                              country     SMALLINT NOT NULL,
---                              dmy         DATE NOT NULL,
---                              kind        SMALLINT
--- );

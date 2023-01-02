@@ -1,11 +1,10 @@
 package com.musalasoft.dronefleet.service;
 
-import com.musalasoft.dronefleet.boundary.DroneMapper;
 import com.musalasoft.dronefleet.domain.DroneState;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.persistence.DroneEntity;
 import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
-import com.musalasoft.dronefleet.persistence.ReactiveDroneRepository;
+import com.musalasoft.dronefleet.persistence.DroneRepository;
 import com.musalasoft.dronefleet.service.OperationLogService.GenericIdempotentOperationContent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +23,9 @@ import static org.springframework.http.HttpStatus.OK;
 @RequiredArgsConstructor
 public class DroneService {
     private final Settings settings;
-    private final ReactiveDroneRepository droneRepository;
-
-
+    private final DroneRepository droneRepository;
     private final OperationLogService operationLogService;
 
-    private final DroneMapper mapper;
 
     @Transactional
     public Mono<DroneEntity> registerDrone(RegisterDroneRequestDTO request) {
@@ -102,7 +98,5 @@ public class DroneService {
             droneEntityRef.set(value);
             return this;
         }
-
     }
-
 }

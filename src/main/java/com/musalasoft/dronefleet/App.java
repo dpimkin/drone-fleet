@@ -6,6 +6,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import static com.musalasoft.dronefleet.r2dbc.DriverHostnameResolveWorkaround.resolveDatabaseHostName;
+
 
 @SpringBootApplication(proxyBeanMethods = false)
 public class App {
@@ -19,4 +21,7 @@ public class App {
 		return Mappers.getMapper(DroneMapper.class);
 	}
 
+	static {
+		resolveDatabaseHostName();
+	}
 }

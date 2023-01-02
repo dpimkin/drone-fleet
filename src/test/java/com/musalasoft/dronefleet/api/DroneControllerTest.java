@@ -3,10 +3,8 @@ package com.musalasoft.dronefleet.api;
 import com.musalasoft.dronefleet.DockerizedTestSupport;
 import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DroneModelType;
-import com.musalasoft.dronefleet.domain.DroneState;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.domain.UpdateDroneRequestDTO;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
@@ -19,13 +17,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
-import static com.musalasoft.dronefleet.domain.DroneModelType.CRUISERWEIGHT;
 import static com.musalasoft.dronefleet.domain.DroneModelType.HEAVYWEIGHT;
 import static com.musalasoft.dronefleet.domain.DroneModelType.MIDDLEWEIGHT;
 import static com.musalasoft.dronefleet.domain.DroneState.DELIVERED;
 import static com.musalasoft.dronefleet.domain.DroneState.DELIVERING;
 import static com.musalasoft.dronefleet.domain.DroneState.IDLE;
-import static com.musalasoft.dronefleet.domain.DroneState.RETURNING;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -47,7 +43,6 @@ class DroneControllerTest extends DockerizedTestSupport {
                 .expectStatus()
                 .isOk();
     }
-
 
 
     /**
@@ -138,7 +133,7 @@ class DroneControllerTest extends DockerizedTestSupport {
     }
 
     @Test
-    void fetchDroneBySn_isOk() {
+    void fetchDrone_isOk() {
         final var expectedSerialNumber = "FETCHDRONEBYSN";
         final var expectedState = DELIVERING;
         final var expectedType = MIDDLEWEIGHT;
@@ -159,7 +154,7 @@ class DroneControllerTest extends DockerizedTestSupport {
 
         long droneId = Long.parseLong(provisioning);
 
-        var actualResult = fetchDroneBySerialNumber(expectedSerialNumber)
+        var actualResult = fetchDrone(expectedSerialNumber)
                 .expectStatus()
                 .isOk()
                 .expectBody(DroneDTO.class)
@@ -190,12 +185,11 @@ class DroneControllerTest extends DockerizedTestSupport {
     }
 
 
-    private ResponseSpec fetchDroneBySerialNumber(String sn) {
+    private ResponseSpec fetchDrone(String sn) {
         return webClient.get()
                 .uri(Endpoints.DRONE_CRUD_ENDPOINT + '/' + sn)
                 .exchange();
     }
-
 
 
     private RegisterDroneRequestDTO generateValidDroneRequestDTO() {

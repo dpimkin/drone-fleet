@@ -2,11 +2,11 @@ spring:
   application:
     name: drone-fleet
   r2dbc:
-    url: r2dbc:pool:postgresql://app_db:5432/fleet_db?loggerLevel=OFF
+    url: r2dbc:pool:postgresql://${DB_HOST}:5432/fleet_db?loggerLevel=OFF
     username: alt_cunningham
     password: s0ulki113r
   flyway:
-    url: jdbc:postgresql://app_db:5432/fleet_db?loggerLevel=OFF
+    url: jdbc:postgresql://${DB_HOST}:5432/fleet_db?loggerLevel=OFF
     user: alt_cunningham
     password: s0ulki113r
     driver-class-name: org.postgresql.Driver
