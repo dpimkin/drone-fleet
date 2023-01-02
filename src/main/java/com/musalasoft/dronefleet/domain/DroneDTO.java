@@ -11,7 +11,8 @@ public class DroneDTO {
     String id;
     String serialNumber;
     DroneModelType modelType;
-    int weightCapacity;
-    int weightLimit;
+    Integer batteryCapacity;
+    Integer weightCapacity;
+    Integer weightLimit;
     DroneState state;
 }
