@@ -18,9 +18,6 @@ public abstract class DockerizedTestSupport {
     @Container
     final static PostgreSQLContainer<?> POSTGRES = createDatabaseInstance();
 
-
-
-
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         // region Flyway

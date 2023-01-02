@@ -44,7 +44,6 @@ class DroneControllerTest extends DockerizedTestSupport {
                 .isOk();
     }
 
-
     @Test
     void fetchDroneById_isOk() {
         final var expectedSerialNumber = "FETCHDRONEBYID";
@@ -100,6 +99,15 @@ class DroneControllerTest extends DockerizedTestSupport {
     @ValueSource(strings = {"-1", "101"})
     void registerDrone_withBadBatteryCapacity(Integer batteryCapacity) {
         registerDrone(generateValidDroneRequestDTO().setBatteryCapacity(batteryCapacity))
+                .expectStatus()
+                .isBadRequest();
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"-1", "0"})
+    void registerDrone_withBadWeightLimig(Integer weightLimit) {
+        registerDrone(generateValidDroneRequestDTO().setWeightLimit(weightLimit))
                 .expectStatus()
                 .isBadRequest();
     }
