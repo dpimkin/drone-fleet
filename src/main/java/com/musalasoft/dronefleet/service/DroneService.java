@@ -3,8 +3,8 @@ package com.musalasoft.dronefleet.service;
 import com.musalasoft.dronefleet.boundary.DroneMapper;
 import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
-import com.musalasoft.dronefleet.persistence.DroneDocument;
-import com.musalasoft.dronefleet.persistence.IdempotentOperationDocument;
+import com.musalasoft.dronefleet.persistence.DroneEntity;
+
 import com.musalasoft.dronefleet.persistence.IdempotentOperationRepository;
 import com.musalasoft.dronefleet.persistence.ReactiveDroneRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,35 +31,43 @@ public class DroneService {
 
     private final DroneMapper mapper;
 
-    public Mono<DroneDocument> registerDrone(RegisterDroneRequestDTO request) {
-        var drone = new DroneDocument()
-                .setDeleted(false)
-                .setSerialNumber(request.getSerialNumber())
-                .setModelType(request.getModelType())
-                .setState(ofNullable(request.getState()).orElse(IDLE))
-                .setBatteryCapacity(request.getBatteryCapacity())
-                .setWeightCapacity(request.getWeightLimit())
-                .setWeightLimit(request.getWeightLimit());
-        return droneRepository.save(drone);
+    public Mono<DroneEntity> registerDrone(RegisterDroneRequestDTO request) {
+        return droneRepository.save(new DroneEntity(null,
+                request.getSerialNumber(),
+                request.getModelType(),
+                request.getState()));
+
+
+
+        //return Mono.just(new DroneEntity(null, null)); // TODO implement it
+//        var drone = new DroneDocument()
+//                .setDeleted(false)
+//                .setSerialNumber(request.getSerialNumber())
+//                .setModelType(request.getModelType())
+//                .setState(ofNullable(request.getState()).orElse(IDLE))
+//                .setBatteryCapacity(request.getBatteryCapacity())
+//                .setWeightCapacity(request.getWeightLimit())
+//                .setWeightLimit(request.getWeightLimit());
+//        return droneRepository.save(drone);
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Mono<DroneDocument> test(String sn) {
-
-        return droneRepository.save(new DroneDocument()
-                .setDeleted(false)
-                .setSerialNumber(sn)).flatMap( r -> {
-            return idempotentOperationRepository.save(new IdempotentOperationDocument()
-                    .setIdempotencyKey("FOO")).map( unused -> r);
-        }).flatMap(r -> {
-            return idempotentOperationRepository.save(new IdempotentOperationDocument()
-                    .setIdempotencyKey("FOO")).map( unused -> r);
-        });
-
-
-
-    }
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+//    public Mono<DroneEntity> test(String sn) {
+//
+//        return droneRepository.save(new DroneDocument()
+//                .setDeleted(false)
+//                .setSerialNumber(sn)).flatMap( r -> {
+//            return idempotentOperationRepository.save(new IdempotentOperationDocument()
+//                    .setIdempotencyKey("FOO")).map( unused -> r);
+//        }).flatMap(r -> {
+//            return idempotentOperationRepository.save(new IdempotentOperationDocument()
+//                    .setIdempotencyKey("FOO")).map( unused -> r);
+//        });
+//
+//
+//
+//    }
 
     public Mono<Integer> updateDroneBySerialNumber(UpdateDroneRequestBySerialNumberDTO request) {
         return null;
@@ -82,24 +90,27 @@ public class DroneService {
     }
 
     public Flux<DroneDTO> findAll(int limit) {
-        return droneRepository.findByDeleted(false).take(limit).map(mapper::mapDroneDocument);
+        return Flux.empty();
+        //return droneRepository.findByDeleted(false).take(limit).map(mapper::mapDroneDocument);
     }
 
     public Mono<DroneDTO> findDroneById(String id) {
-        return droneRepository.findByIdAndDeleted(id, false).map(mapper::mapDroneDocument);
+        return Mono.empty();
+        //return droneRepository.findByIdAndDeleted(id, false).map(mapper::mapDroneDocument);
     }
 
     public Mono<DroneDTO> findDroneBySerialNumber(String sn) {
-        return droneRepository.findBySerialNumberAndDeleted(sn, false).map(mapper::mapDroneDocument);
+        return Mono.empty();
+        //return droneRepository.findBySerialNumberAndDeleted(sn, false).map(mapper::mapDroneDocument);
     }
 
 
-    Mono<IdempotentOperationDocument> newIdempotentOperation(String idempotencyKey) {
-        return idempotentOperationRepository.save(new IdempotentOperationDocument()
-                .setIdempotencyKey(idempotencyKey)
-                .setCreated(now()));
-
-    }
+//    Mono<IdempotentOperationDocument> newIdempotentOperation(String idempotencyKey) {
+//        return idempotentOperationRepository.save(new IdempotentOperationDocument()
+//                .setIdempotencyKey(idempotencyKey)
+//                .setCreated(now()));
+//
+//    }
 
 //    private Mono<DroneDocument> updateDroneDocument(DroneDocument drone, GenericDroneRequestDTO request) {
 //        ofNullable(request.getBatteryCapacity()).ifPresent(drone::setBatteryCapacity);

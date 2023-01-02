@@ -1,12 +1,12 @@
 package com.musalasoft.dronefleet.boundary;
 
 import com.musalasoft.dronefleet.domain.DroneDTO;
-import com.musalasoft.dronefleet.persistence.DroneDocument;
+import com.musalasoft.dronefleet.persistence.DroneEntity;
 import org.mapstruct.Mapper;
 
 @Mapper
 public interface DroneMapper {
 
-    DroneDTO mapDroneDocument(DroneDocument doc);
+    DroneDTO mapDroneDocument(DroneEntity doc);
 
 }

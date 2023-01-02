@@ -63,7 +63,7 @@ public class DroneCrudController {
     Mono<ResponseEntity<String>> registerDrone(@RequestBody @Valid RegisterDroneRequestDTO request,
                                                @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
         return droneService.registerDrone(request)
-                .map(doc -> ResponseEntity.ok(doc.getId()));
+                .map(doc -> ResponseEntity.ok(Long.toString(doc.id())));
     }
 
     /**

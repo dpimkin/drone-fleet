@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 public class DroneDTO {
-    String id;
+    Long id;
     String serialNumber;
     DroneModelType modelType;
     Integer batteryCapacity;

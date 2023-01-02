@@ -1,6 +1,6 @@
 package com.musalasoft.dronefleet.api;
 
-import com.musalasoft.dronefleet.DockerizedMongoSupport;
+import com.musalasoft.dronefleet.DockerizedSupport;
 import com.musalasoft.dronefleet.domain.DroneModelType;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import org.junit.jupiter.api.Disabled;
@@ -20,8 +20,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
-@TestPropertySource(properties = "logging.level.org.springframework.data.mongodb.core.MongoTemplate=TRACE")
-class DroneCrudControllerTest extends DockerizedMongoSupport {
+// TODO @TestPropertySource(properties = "logging.level.org.springframework.data.mongodb.core.MongoTemplate=TRACE")
+class DroneCrudControllerTest extends DockerizedSupport {
 
     private static int droneSerialNumberCounter = 1;
 

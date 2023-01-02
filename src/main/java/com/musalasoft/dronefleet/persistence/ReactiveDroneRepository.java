@@ -6,12 +6,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface ReactiveDroneRepository extends ReactiveCrudRepository<DroneDocument, String> {
+public interface ReactiveDroneRepository extends ReactiveCrudRepository<DroneEntity, Long> {
 
-    Flux<DroneDocument> findByDeleted(boolean deleted);
-
-    Mono<DroneDocument> findByIdAndDeleted(String id, boolean deleted);
-
-    Mono<DroneDocument> findBySerialNumberAndDeleted(String serialNumber, boolean deleted);
+//    Flux<DroneDocument> findByDeleted(boolean deleted);
+//
+//    Mono<DroneDocument> findByIdAndDeleted(String id, boolean deleted);
+//
+//    Mono<DroneDocument> findBySerialNumberAndDeleted(String serialNumber, boolean deleted);
 
 }

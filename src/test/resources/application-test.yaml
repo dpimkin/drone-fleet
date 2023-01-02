@@ -8,6 +8,3 @@ logging:
     org.springframework.web: DEBUG
     org.testcontainers: INFO
     com.github.dockerjava: WARN
-    org.springframework.data: TRACE
-    org.mongodb.driver: TRACE
-debug: true
