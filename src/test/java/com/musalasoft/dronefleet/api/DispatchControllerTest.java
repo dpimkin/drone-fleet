@@ -2,7 +2,7 @@ package com.musalasoft.dronefleet.api;
 
 import com.musalasoft.dronefleet.DockerizedMongoSupport;
 import com.musalasoft.dronefleet.domain.DronePayloadDTO;
-import com.musalasoft.dronefleet.domain.MedicationPayloadDTO;
+import com.musalasoft.dronefleet.domain.MedicationPayload;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -19,7 +19,7 @@ import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-class DispatchControllerValidationTest extends DockerizedMongoSupport {
+class DispatchControllerTest extends DockerizedMongoSupport {
 
     @Autowired
     private WebTestClient webClient;
@@ -73,8 +73,8 @@ class DispatchControllerValidationTest extends DockerizedMongoSupport {
                 .isBadRequest();
     }
 
-    private MedicationPayloadDTO generateValidMedicationPayload() {
-        return new MedicationPayloadDTO()
+    private MedicationPayload generateValidMedicationPayload() {
+        return new MedicationPayload()
                 .setName("NZT-48")
                 .setCode("NZT_48")
                 .setWeight(1)

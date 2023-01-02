@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 public class RegisterDroneRequestDTO {
 
     @NotNull(message = "serialNumber should be specified")
-    @Pattern(regexp = "^[A-Za-z]{1,100}$")
+    @Pattern(regexp = "^[A-Za-z0-9]{1,100}$")
     String serialNumber;
 
     @NotNull(message = "modelType should be specified")

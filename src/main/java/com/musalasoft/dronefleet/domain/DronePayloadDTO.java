@@ -13,5 +13,5 @@ public class DronePayloadDTO {
 
     @NotNull
     @Valid
-    List<MedicationPayloadDTO> payloadList;
+    List<MedicationPayload> payloadList;
 }

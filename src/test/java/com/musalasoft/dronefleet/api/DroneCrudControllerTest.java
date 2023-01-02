@@ -10,6 +10,8 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
@@ -17,7 +19,11 @@ import static com.musalasoft.dronefleet.domain.DroneState.IDLE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-class DroneCrudControllerValidationTest extends DockerizedMongoSupport {
+@ActiveProfiles("test")
+@TestPropertySource(properties = "logging.level.org.springframework.data.mongodb.core.MongoTemplate=TRACE")
+class DroneCrudControllerTest extends DockerizedMongoSupport {
+
+    private static int droneSerialNumberCounter = 1;
 
     @Autowired
     private WebTestClient webClient;
@@ -59,8 +65,9 @@ class DroneCrudControllerValidationTest extends DockerizedMongoSupport {
     }
 
     private RegisterDroneRequestDTO generateValidDroneRequestDTO() {
+        var sn = ++droneSerialNumberCounter;
         return new RegisterDroneRequestDTO()
-                .setSerialNumber("foobar")
+                .setSerialNumber("foobar" + sn)
                 .setModelType(DroneModelType.MIDDLEWEIGHT)
                 .setWeightLimit(450)
                 .setBatteryCapacity(80)

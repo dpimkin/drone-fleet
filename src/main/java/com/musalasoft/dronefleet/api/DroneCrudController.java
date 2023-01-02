@@ -4,6 +4,7 @@ import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.domain.UpdateDroneRequestDTO;
 import com.musalasoft.dronefleet.service.DroneService;
+import io.swagger.v3.oas.models.parameters.QueryParameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,6 +40,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         produces = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class DroneCrudController {
+    private static final int MAX_QUERY_SIZE = 50;
 
     private final DroneService droneService;
 
@@ -45,14 +48,11 @@ public class DroneCrudController {
      * Find all drones
      */
     @GetMapping(consumes = ALL_VALUE)
-    Flux<DroneDTO> findAllDrones() {
-        // TODO implement
-        return Flux.fromIterable(List.of(new DroneDTO().setId("foobar")
-                .setSerialNumber("123")
-                .setModelType(LIGHTWEIGHT)
-                .setWeightCapacity(300)
-                .setWeightLimit(500)
-                .setState(IDLE)));
+    Flux<DroneDTO> findAllDrones(@RequestParam(name= "limit", defaultValue = "20") int limit) {
+        if (limit < 1) {
+            limit = 20;
+        }
+        return droneService.findAll(Math.min(limit, MAX_QUERY_SIZE));
     }
 
 
@@ -62,8 +62,8 @@ public class DroneCrudController {
     @PostMapping
     Mono<ResponseEntity<String>> registerDrone(@RequestBody @Valid RegisterDroneRequestDTO request,
                                                @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
-        // TODO implement
-        return Mono.just(ResponseEntity.ok().build());
+        return droneService.registerDrone(request)
+                .map(doc -> ResponseEntity.ok(doc.getId()));
     }
 
     /**
@@ -71,13 +71,8 @@ public class DroneCrudController {
      */
     @GetMapping(path = "{droneId}", consumes = ALL_VALUE)
     Mono<ResponseEntity<DroneDTO>> findDroneById(@PathVariable("droneId") String droneId) {
-        // TODO implement
-        return Mono.just(ResponseEntity.ok().body(new DroneDTO().setId("foo")
-                .setSerialNumber("11101")
-                .setModelType(LIGHTWEIGHT)
-                .setWeightCapacity(10)
-                .setWeightLimit(500)
-                .setState(IDLE)));
+        return droneService.findDroneById(droneId)
+                .map(ResponseEntity::ok);
     }
 
     /**
@@ -85,13 +80,8 @@ public class DroneCrudController {
      */
     @GetMapping(path = "by-sn/{serialNumber}", consumes = ALL_VALUE)
     Mono<ResponseEntity<DroneDTO>> findDroneBySerialNumber(@PathVariable("serialNumber") String serialNumber) {
-        // TODO implement
-        return Mono.just(ResponseEntity.ok().body(new DroneDTO().setId("bar")
-                .setSerialNumber("123")
-                .setModelType(LIGHTWEIGHT)
-                .setWeightCapacity(10)
-                .setWeightLimit(500)
-                .setState(IDLE)));
+        return droneService.findDroneBySerialNumber(serialNumber)
+                .map(ResponseEntity::ok);
     }
 
     /**

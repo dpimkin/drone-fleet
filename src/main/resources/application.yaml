@@ -6,9 +6,9 @@ springdoc:
     port: true
 server:
   port: 8088
-#management:
-#  server:
-#    port: 9099
+
+drone-fleet:
+  low-battery-threshold: 25
 
 logging:
   level:

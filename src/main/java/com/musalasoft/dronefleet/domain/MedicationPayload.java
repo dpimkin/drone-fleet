@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class MedicationPayloadDTO {
+public class MedicationPayload {
 
     @NotBlank(message = "name is required")
     @Pattern(regexp = "([A-Za-z0-9_-]+)", message = "allowed only letters, numbers, ‘-‘, ‘_’")

@@ -12,7 +12,7 @@ public abstract class DockerizedMongoSupport {
 
     @Container
     private static MongoDBContainer mongoDBContainer = new MongoDBContainer(MONGODB_IMAGE)
-            .withReuse(false);
+            .withReuse(true);
 
 
     @DynamicPropertySource

@@ -5,4 +5,6 @@ import lombok.Data;
 @Data
 public class UpdateDroneRequestDTO {
     DroneState state;
+
+
 }
