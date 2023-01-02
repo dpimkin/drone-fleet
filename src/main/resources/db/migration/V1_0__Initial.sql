@@ -16,7 +16,7 @@ CREATE UNIQUE INDEX sn_unique ON drone (sn);
 
 CREATE SEQUENCE idempotent_operation_seq AS BIGINT;
 
-CREATE TABLE idempotent_operation
+CREATE TABLE operation_log
 (
     id              BIGINT PRIMARY KEY DEFAULT nextval('idempotent_operation_seq'),
     idempotency_key VARCHAR(64),
@@ -24,7 +24,7 @@ CREATE TABLE idempotent_operation
     created         TIMESTAMP
 );
 
-CREATE UNIQUE INDEX idempotency_key_unique ON idempotent_operation (idempotency_key);
+CREATE UNIQUE INDEX idempotency_key_unique ON operation_log (idempotency_key);
 
 
 

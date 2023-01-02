@@ -5,11 +5,9 @@ import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.domain.UpdateDroneRequestDTO;
 import com.musalasoft.dronefleet.service.DroneService;
-import com.musalasoft.dronefleet.service.LowBatteryException;
 import com.musalasoft.dronefleet.service.OperationLogService;
 import com.musalasoft.dronefleet.service.StalledOperationException;
-import com.musalasoft.dronefleet.service.UpdateDroneRequestByIdDTO;
-import com.musalasoft.dronefleet.service.UpdateDroneRequestBySerialNumberDTO;
+import com.musalasoft.dronefleet.service.UpdateDroneDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +55,8 @@ public class DroneController {
         if (limit < 1) {
             limit = 20;
         }
-        return droneService.findAll(Math.min(limit, MAX_QUERY_SIZE));
+        // TODO return droneService.findAll(Math.min(limit, MAX_QUERY_SIZE));
+        return Flux.empty();
     }
 
     /**
@@ -67,64 +66,24 @@ public class DroneController {
     Mono<ResponseEntity<String>> registerDrone(@RequestBody @Valid RegisterDroneRequestDTO request) {
         return droneService.registerDrone(request)
                 .onErrorResume(DuplicateKeyException.class,
-                        e -> droneService.findDroneBySerialNumber(request.getSerialNumber()))
+                        e -> droneService.findDroneBySn(request.getSerialNumber()))
                 .map(doc -> ResponseEntity.ok(Long.toString(doc.id())));
-    }
-
-    /**
-     * Find drone by id.
-     */
-    @GetMapping(path = "{droneId}", consumes = ALL_VALUE)
-    Mono<ResponseEntity<DroneDTO>> findDroneById(@PathVariable("droneId") Long droneId) {
-        return droneService.findDroneById(droneId)
-                .map(mapper::mapDroneEntity)
-                .map(ResponseEntity::ok);
     }
 
     /**
      * Find drone by serial number.
      */
-    @GetMapping(path = "by-sn/{serialNumber}", consumes = ALL_VALUE)
+    @GetMapping(path = "{serialNumber}", consumes = ALL_VALUE)
     Mono<ResponseEntity<DroneDTO>> findDroneBySerialNumber(@PathVariable("serialNumber") String serialNumber) {
-        return droneService.findDroneBySerialNumber(serialNumber)
+        return droneService.findDroneBySn(serialNumber)
                 .map(mapper::mapDroneEntity)
                 .map(ResponseEntity::ok);
     }
 
-    /**
-     * Update drone by id.
-     */
-    @PutMapping(path = "{droneId}")
-    Mono<ResponseEntity<String>> updateDroneById(@PathVariable("droneId") Long droneId,
-                                                 @RequestBody @Validated UpdateDroneRequestDTO request,
-                                                 @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
-        return Mono.empty();
-//        if (isInvalidIdempotencyKey(idempotencyKey)) {
-//            return Mono.just(ResponseEntity.badRequest().build());
-//        }
-//
-//        final var updateDroneRequestById = new UpdateDroneRequestByIdDTO().setId(droneId);
-//        updateDroneRequestById.setState(request.getState());
-//        updateDroneRequestById.setBatteryCapacity(request.getBatteryCapacity());
-//        updateDroneRequestById.setIdempotencyKey(droneId + idempotencyKey);
-//
-//
-//        return droneService.updateDroneById(updateDroneRequestById)
-//
-//                .onErrorResume(StalledOperationException.class, (e) -> operationLogService.fetchOperationResult(updateDroneRequestById.getIdempotencyKey()))
-////                .setId(droneId)
-////                        .setState(request.getState())
-////                                .setBatteryCapacity(request.get)
-////
-////        droneService.updateDroneById()
-//        // TODO implement
-//        //return Mono.just(ResponseEntity.ok().build());
-    }
-
-    /**
+      /**
      * Update drone by serial number.
      */
-    @PutMapping(path = "sn/{serialNumber}")
+    @PutMapping(path = "{serialNumber}")
     Mono<ResponseEntity<String>> updateDroneBySn(@PathVariable("serialNumber") String serialNumber,
                                                  @RequestBody @Validated UpdateDroneRequestDTO requestBody,
                                                  @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
@@ -133,7 +92,7 @@ public class DroneController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        var request = new UpdateDroneRequestBySerialNumberDTO()
+        var request = new UpdateDroneDTO()
                 .setSerialNumber(serialNumber)
                 .setBatteryCapacity(requestBody.getBatteryCapacity())
                 .setState(requestBody.getState())
@@ -145,16 +104,7 @@ public class DroneController {
                 .onErrorResume(StalledOperationException.class,
                         (e) -> operationLogService.fetchOperationResult(request.getIdempotencyKey()))
 
-                .map(status -> {
-                    log.info("149 {}", status);
-                    return ResponseEntity.status(status).body("");
-                });
-
-
+                .map(status -> ResponseEntity.status(status).body(""));
         return result;
-
-//        // TODO implement
-//        return Mono.just(ResponseEntity.ok().build());
     }
-
 }

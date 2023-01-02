@@ -1,27 +1,20 @@
 package com.musalasoft.dronefleet.service;
 
 import com.musalasoft.dronefleet.boundary.DroneMapper;
-import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DroneState;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.persistence.DroneEntity;
 import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
-import com.musalasoft.dronefleet.persistence.OperationLogRepository;
 import com.musalasoft.dronefleet.persistence.ReactiveDroneRepository;
 import com.musalasoft.dronefleet.service.OperationLogService.GenericIdempotentOperationContent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
-import static java.time.Instant.now;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -32,7 +25,7 @@ import static org.springframework.http.HttpStatus.OK;
 public class DroneService {
     private final Settings settings;
     private final ReactiveDroneRepository droneRepository;
-    //private final OperationLogRepository operationLogRepository;
+
 
     private final OperationLogService operationLogService;
 
@@ -51,28 +44,17 @@ public class DroneService {
     }
 
     @Transactional(readOnly = true)
-    public Mono<DroneEntity> findDroneById(Long id) {
-        log.info("fetching drone by id '{}'", id);
-        return droneRepository.findById(id);
-    }
-
-    @Transactional(readOnly = true)
-    public Mono<DroneEntity> findDroneBySerialNumber(String sn) {
+    public Mono<DroneEntity> findDroneBySn(String sn) {
         log.info("fetching drone by s/n '{}'", sn);
-        return droneRepository.findBySerialNumber(sn);//.map(mapper::mapDroneEntity);
-
+        return droneRepository.findBySerialNumber(sn);
     }
 
-    @Transactional
-    public Mono<IdempotentOperationEntity> updateDroneById(UpdateDroneRequestByIdDTO request) {
-        return null;
-    }
 
     /**
      * write through idempotent operation log to ensure
      */
     @Transactional
-    public Mono<Integer> updateDroneBySerialNumber(UpdateDroneRequestBySerialNumberDTO request) {
+    public Mono<Integer> updateDroneBySerialNumber(UpdateDroneDTO request) {
         return operationLogService.newIdempotentOperation(request.getIdempotencyKey())
                 .map(UpdateOperationContext::new)
                 .flatMap(context -> droneRepository.findBySerialNumber(request.getSerialNumber())
@@ -84,13 +66,7 @@ public class DroneService {
     }
 
 
-
-    public Flux<DroneDTO> findAll(int limit) { // TODO
-        return Flux.empty();
-    }
-
-
-    private Mono<DroneEntity> mergeDroneEntity(UpdateDroneRequestBySerialNumberDTO request, DroneEntity entity) {
+    private Mono<DroneEntity> mergeDroneEntity(UpdateDroneDTO request, DroneEntity entity) {
         var merged = new DroneEntity(entity.id(),
                 entity.serialNumber(),
                 entity.type(),
@@ -128,10 +104,5 @@ public class DroneService {
         }
 
     }
-
-//    static class UpdateOperationContent {
-//        final AtomicReference<IdempotentOperationEntity> idempotentOperationEntityRef;
-//    }
-
 
 }

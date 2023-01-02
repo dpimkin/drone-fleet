@@ -12,6 +12,7 @@ public interface DroneMapper {
     default DroneDTO mapDroneEntity(DroneEntity doc) {
         return new DroneDTO()
                 .setId(doc.id())
+                .setSerialNumber(doc.serialNumber())
                 .setBatteryCapacity(doc.batteryCapacity())
                 .setWeightCapacity(doc.weightCapacity())
                 .setWeightLimit(doc.weightLimit())

@@ -48,41 +48,6 @@ class DroneControllerTest extends DockerizedTestSupport {
                 .isOk();
     }
 
-    @Test
-    void fetchDroneById_isOk() {
-        final var expectedSerialNumber = "FETCHDRONEBYID";
-        final var expectedState = RETURNING;
-        final var expectedType = CRUISERWEIGHT;
-        final var expectedBatteryCapacity = 73;
-        final var expectedWeightLimit = 330;
-
-        var provisioning = registerDrone(new RegisterDroneRequestDTO()
-                .setSerialNumber(expectedSerialNumber)
-                .setWeightLimit(expectedWeightLimit)
-                .setBatteryCapacity(expectedBatteryCapacity)
-                .setModelType(expectedType)
-                .setState(expectedState))
-                .expectStatus()
-                .isOk()
-                .expectBody(String.class)
-                .returnResult()
-                .getResponseBody();
-
-        long droneId = Long.parseLong(provisioning);
-
-        var actualResult = fetchDroneById(droneId)
-                .expectStatus()
-                .isOk()
-                .expectBody(DroneDTO.class)
-                .returnResult()
-                .getResponseBody();
-
-        assertEquals(droneId, actualResult.getId().longValue());
-        assertEquals(expectedBatteryCapacity, actualResult.getBatteryCapacity().intValue());
-        assertEquals(expectedWeightLimit, actualResult.getWeightLimit().intValue());
-        assertEquals(expectedState, actualResult.getState());
-        assertEquals(expectedType, actualResult.getModelType());
-    }
 
 
     /**
@@ -210,7 +175,7 @@ class DroneControllerTest extends DockerizedTestSupport {
 
 
     private ResponseSpec updateDrone(String sn, UpdateDroneRequestDTO body, String idempotencyKey) {
-        return webClient.put().uri(Endpoints.DRONE_CRUD_ENDPOINT + "/sn/" + sn)
+        return webClient.put().uri(Endpoints.DRONE_CRUD_ENDPOINT + '/' + sn)
                 .header(IDEMPOTENCY_KEY_HEADER, idempotencyKey)
                 .bodyValue(body)
                 .exchange();
@@ -225,15 +190,9 @@ class DroneControllerTest extends DockerizedTestSupport {
     }
 
 
-    private ResponseSpec fetchDroneById(long id) {
-        return webClient.get()
-                .uri(Endpoints.DRONE_CRUD_ENDPOINT + '/' + id)
-                .exchange();
-    }
-
     private ResponseSpec fetchDroneBySerialNumber(String sn) {
         return webClient.get()
-                .uri(Endpoints.DRONE_CRUD_ENDPOINT + "/by-sn/" + sn)
+                .uri(Endpoints.DRONE_CRUD_ENDPOINT + '/' + sn)
                 .exchange();
     }
 

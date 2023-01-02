@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class UpdateDroneRequestBySerialNumberDTO {
+public class UpdateDroneDTO {
     private String serialNumber;
     private String idempotencyKey;
     private DroneState state;

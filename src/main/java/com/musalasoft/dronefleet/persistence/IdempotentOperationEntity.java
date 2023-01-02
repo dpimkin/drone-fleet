@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.Instant;
 
 
-@Table("idempotent_operation")
+@Table("operation_log")
 public record IdempotentOperationEntity(@Id Long id,
                                         @Column("idempotency_key") String idempotencyKey,
                                         @Column("status") int status,
