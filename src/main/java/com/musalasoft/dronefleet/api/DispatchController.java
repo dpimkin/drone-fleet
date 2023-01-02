@@ -2,6 +2,7 @@ package com.musalasoft.dronefleet.api;
 
 import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DronePayloadDTO;
+import com.musalasoft.dronefleet.service.DroneService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         produces = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class DispatchController {
+
+    private final DroneService droneService;
 
     @PutMapping(path = "load-by-id/{droneId}")
     Mono<ResponseEntity<String>> loadDroneById(@Valid @RequestBody DronePayloadDTO request,

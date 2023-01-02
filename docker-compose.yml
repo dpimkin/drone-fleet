@@ -4,7 +4,20 @@ services:
   app:
     container_name: drone-fleet
     image: dpimkin/drone-fleet:1.0.0
+    links:
+      - mongo_db:app_db
     ports:
-      - "8088:8088"
-      - "9099:9099"
+      - '8088:8088'
+      - '9099:9099'
+    restart: always
+    depends_on:
+      - mongo_db
+
+  mongo_db:
+    container_name: drone-fleet-db
+    image: mongo:5.0.14
+    environment:
+      MONGO_INITDB_DATABASE: drone-fleet
+    ports:
+      - '27017-27019:27017-27019'
     restart: always

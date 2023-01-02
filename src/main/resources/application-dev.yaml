@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: drone-fleet
+  data:
+    mongodb:
+      uri: mongodb://app_db:27017/drone-fleet
+
+springdoc:
+  enable-hateoas: false
+  cache.disabled: true
+  show-actuator: true
+
+server:
+  port: 8088
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+management:
+  endpoints:
+    enabled-by-default: true
+  health:
+    mongo:
+      enabled: true

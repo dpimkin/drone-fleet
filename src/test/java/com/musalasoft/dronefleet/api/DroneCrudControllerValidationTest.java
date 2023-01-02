@@ -1,5 +1,6 @@
 package com.musalasoft.dronefleet.api;
 
+import com.musalasoft.dronefleet.DockerizedMongoSupport;
 import com.musalasoft.dronefleet.domain.DroneModelType;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import org.junit.jupiter.api.Disabled;
@@ -16,7 +17,7 @@ import static com.musalasoft.dronefleet.domain.DroneState.IDLE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-class DroneCrudControllerValidationTest {
+class DroneCrudControllerValidationTest extends DockerizedMongoSupport {
 
     @Autowired
     private WebTestClient webClient;
