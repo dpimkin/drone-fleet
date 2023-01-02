@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface IdempotentOperationRepository extends ReactiveCrudRepository<IdempotentOperationEntity, Long> {
+public interface OperationLogRepository extends ReactiveCrudRepository<IdempotentOperationEntity, Long> {
     Mono<IdempotentOperationEntity> findByIdempotencyKey(String idempotencyKey);
 }

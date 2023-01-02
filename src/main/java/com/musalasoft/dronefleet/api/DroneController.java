@@ -5,14 +5,15 @@ import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.domain.UpdateDroneRequestDTO;
 import com.musalasoft.dronefleet.service.DroneService;
-import com.musalasoft.dronefleet.service.IdempotencyService;
-import com.musalasoft.dronefleet.service.StalledUpdateException;
+import com.musalasoft.dronefleet.service.LowBatteryException;
+import com.musalasoft.dronefleet.service.OperationLogService;
+import com.musalasoft.dronefleet.service.StalledOperationException;
 import com.musalasoft.dronefleet.service.UpdateDroneRequestByIdDTO;
+import com.musalasoft.dronefleet.service.UpdateDroneRequestBySerialNumberDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +45,7 @@ public class DroneController {
     private static final int MAX_QUERY_SIZE = 50;
 
     private final DroneService droneService;
-    private final IdempotencyService idempotencyService;
+    private final OperationLogService operationLogService;
 
     private final DroneMapper mapper;
 
@@ -97,26 +98,27 @@ public class DroneController {
     Mono<ResponseEntity<String>> updateDroneById(@PathVariable("droneId") Long droneId,
                                                  @RequestBody @Validated UpdateDroneRequestDTO request,
                                                  @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
-        if (isInvalidIdempotencyKey(idempotencyKey)) {
-            return Mono.just(ResponseEntity.badRequest().build());
-        }
-
-        final var updateDroneRequestById = new UpdateDroneRequestByIdDTO().setId(droneId);
-        updateDroneRequestById.setState(request.getState());
-        updateDroneRequestById.setBatteryCapacity(request.getBatteryCapacity());
-        updateDroneRequestById.setIdempotencyKey(droneId + idempotencyKey);
-
-
-        return droneService.updateDroneById(updateDroneRequestById)
-                .map(entity -> HttpStatus.OK.value())
-                .onErrorResume(StalledUpdateException.class, (e) -> idempotencyService.)
-//                .setId(droneId)
-//                        .setState(request.getState())
-//                                .setBatteryCapacity(request.get)
+        return Mono.empty();
+//        if (isInvalidIdempotencyKey(idempotencyKey)) {
+//            return Mono.just(ResponseEntity.badRequest().build());
+//        }
 //
-//        droneService.updateDroneById()
-        // TODO implement
-        //return Mono.just(ResponseEntity.ok().build());
+//        final var updateDroneRequestById = new UpdateDroneRequestByIdDTO().setId(droneId);
+//        updateDroneRequestById.setState(request.getState());
+//        updateDroneRequestById.setBatteryCapacity(request.getBatteryCapacity());
+//        updateDroneRequestById.setIdempotencyKey(droneId + idempotencyKey);
+//
+//
+//        return droneService.updateDroneById(updateDroneRequestById)
+//
+//                .onErrorResume(StalledOperationException.class, (e) -> operationLogService.fetchOperationResult(updateDroneRequestById.getIdempotencyKey()))
+////                .setId(droneId)
+////                        .setState(request.getState())
+////                                .setBatteryCapacity(request.get)
+////
+////        droneService.updateDroneById()
+//        // TODO implement
+//        //return Mono.just(ResponseEntity.ok().build());
     }
 
     /**
@@ -124,10 +126,35 @@ public class DroneController {
      */
     @PutMapping(path = "sn/{serialNumber}")
     Mono<ResponseEntity<String>> updateDroneBySn(@PathVariable("serialNumber") String serialNumber,
-                                                 @RequestBody @Validated UpdateDroneRequestDTO request,
+                                                 @RequestBody @Validated UpdateDroneRequestDTO requestBody,
                                                  @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
-        // TODO implement
-        return Mono.just(ResponseEntity.ok().build());
+
+        if (isInvalidIdempotencyKey(idempotencyKey)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
+        var request = new UpdateDroneRequestBySerialNumberDTO()
+                .setSerialNumber(serialNumber)
+                .setBatteryCapacity(requestBody.getBatteryCapacity())
+                .setState(requestBody.getState())
+                .setIdempotencyKey(serialNumber + idempotencyKey);
+
+        var result = droneService.updateDroneBySerialNumber(request)
+
+                // get stalled operation result
+                .onErrorResume(StalledOperationException.class,
+                        (e) -> operationLogService.fetchOperationResult(request.getIdempotencyKey()))
+
+                .map(status -> {
+                    log.info("149 {}", status);
+                    return ResponseEntity.status(status).body("");
+                });
+
+
+        return result;
+
+//        // TODO implement
+//        return Mono.just(ResponseEntity.ok().build());
     }
 
 }

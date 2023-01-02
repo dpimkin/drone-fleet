@@ -6,8 +6,9 @@ import com.musalasoft.dronefleet.domain.DroneState;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.persistence.DroneEntity;
 import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
-import com.musalasoft.dronefleet.persistence.IdempotentOperationRepository;
+import com.musalasoft.dronefleet.persistence.OperationLogRepository;
 import com.musalasoft.dronefleet.persistence.ReactiveDroneRepository;
+import com.musalasoft.dronefleet.service.OperationLogService.GenericIdempotentOperationContent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -17,11 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import static java.time.Instant.now;
 import static java.util.Optional.ofNullable;
+import static org.springframework.http.HttpStatus.OK;
 
 
 @Slf4j
@@ -30,8 +32,9 @@ import static java.util.Optional.ofNullable;
 public class DroneService {
     private final Settings settings;
     private final ReactiveDroneRepository droneRepository;
-    private final IdempotentOperationRepository idempotentOperationRepository;
+    //private final OperationLogRepository operationLogRepository;
 
+    private final OperationLogService operationLogService;
 
     private final DroneMapper mapper;
 
@@ -62,39 +65,32 @@ public class DroneService {
 
     @Transactional
     public Mono<IdempotentOperationEntity> updateDroneById(UpdateDroneRequestByIdDTO request) {
-        return updateDrone(request, (idempotency) -> droneRepository.findById(request.getId()));
+        return null;
     }
-
-    @Transactional
-    public Mono<IdempotentOperationEntity> updateDroneBySerialNumber(UpdateDroneRequestBySerialNumberDTO request) {
-        return updateDrone(request, (idempotency) -> droneRepository.findBySerialNumber(request.getSerialNumber()));
-    }
-
 
     /**
      * write through idempotent operation log to ensure
      */
-    private Mono<IdempotentOperationEntity> updateDrone(GenericDroneRequestDTO request, Function<IdempotentOperationEntity, Mono<DroneEntity>> fetchFn) {
-
-
-        return idempotentOperationRepository.save(new IdempotentOperationEntity(null, request.getIdempotencyKey(), 0, now()))
-                .onErrorResume(DuplicateKeyException.class, e -> {
-                    var message = "stalled operation with idempotency-key " + request.getIdempotencyKey();
-                    log.warn(message);
-                    return Mono.error(new StalledUpdateException(message));
-                })
-                .flatMap(fetchFn)
-                .flatMap(entity -> mergeDroneEntity(request, entity))
-                .flatMap(entity -> idempotentOperationRepository.findByIdempotencyKey(request.getIdempotencyKey()))
-                .flatMap(entity -> idempotentOperationRepository.save(new IdempotentOperationEntity(entity.id(), entity.idempotencyKey(), HttpStatus.OK.ordinal(), entity.created())))
+    @Transactional
+    public Mono<Integer> updateDroneBySerialNumber(UpdateDroneRequestBySerialNumberDTO request) {
+        return operationLogService.newIdempotentOperation(request.getIdempotencyKey())
+                .map(UpdateOperationContext::new)
+                .flatMap(context -> droneRepository.findBySerialNumber(request.getSerialNumber())
+                        .map(context::setDroneEntity))
+                .flatMap(context -> mergeDroneEntity(request, context.getDroneEntity())
+                        .map(entity -> context))
+                .flatMap(context -> operationLogService.mergeIdempotentOperation(context.getIdempotentOperationEntity(), OK.value())
+                        .map(IdempotentOperationEntity::status));
     }
+
+
 
     public Flux<DroneDTO> findAll(int limit) { // TODO
         return Flux.empty();
     }
 
 
-    private Mono<DroneEntity> mergeDroneEntity(GenericDroneRequestDTO request, DroneEntity entity) {
+    private Mono<DroneEntity> mergeDroneEntity(UpdateDroneRequestBySerialNumberDTO request, DroneEntity entity) {
         var merged = new DroneEntity(entity.id(),
                 entity.serialNumber(),
                 entity.type(),
@@ -113,4 +109,29 @@ public class DroneService {
         }
         return droneRepository.save(merged);
     }
+
+
+    static class UpdateOperationContext extends GenericIdempotentOperationContent {
+        final AtomicReference<DroneEntity> droneEntityRef = new AtomicReference<>();
+
+        UpdateOperationContext(IdempotentOperationEntity value) {
+            super(value);
+        }
+
+        public DroneEntity getDroneEntity() {
+            return droneEntityRef.get();
+        }
+
+        public UpdateOperationContext setDroneEntity(DroneEntity value) {
+            droneEntityRef.set(value);
+            return this;
+        }
+
+    }
+
+//    static class UpdateOperationContent {
+//        final AtomicReference<IdempotentOperationEntity> idempotentOperationEntityRef;
+//    }
+
+
 }

@@ -1,6 +1,5 @@
 package com.musalasoft.dronefleet.persistence;
 
-import com.musalasoft.dronefleet.DockerizedTestSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ class PreconditionsTest {
     ReactiveDroneRepository droneRepository;
 
     @Autowired
-    IdempotentOperationRepository idempotentOperationRepository;
+    OperationLogRepository operationLogRepository;
 
     @Test
     void droneSerialNumber_shouldBeUnique() {
@@ -69,9 +68,9 @@ class PreconditionsTest {
 
     @Test
     void idempotencyKey_shouldBeUnique() {
-        StepVerifier.create(idempotentOperationRepository.save(
+        StepVerifier.create(operationLogRepository.save(
                 new IdempotentOperationEntity(null, SAME_IDEMPOTENCY_KEY, 0, now()))
-                        .flatMap(entity -> idempotentOperationRepository.save(
+                        .flatMap(entity -> operationLogRepository.save(
                                 new IdempotentOperationEntity(null, SAME_IDEMPOTENCY_KEY, 200, now()))))
                 .expectError(DuplicateKeyException.class)
                 .verify();
