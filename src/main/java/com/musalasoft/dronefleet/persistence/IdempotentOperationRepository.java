@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface IdempotentOperationRepository extends ReactiveCrudRepository<IdempotentOperationEntity, Long> {
-//    Mono<IdempotentOperationDocument> findByIdempotencyKey(String idempotencyKey);
+    Mono<IdempotentOperationEntity> findByIdempotencyKey(String idempotencyKey);
 }
