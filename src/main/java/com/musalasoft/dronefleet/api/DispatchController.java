@@ -1,8 +1,10 @@
 package com.musalasoft.dronefleet.api;
 
 import com.musalasoft.dronefleet.boundary.DroneMapper;
+import com.musalasoft.dronefleet.boundary.MedicationMapper;
 import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DronePayloadDTO;
+import com.musalasoft.dronefleet.domain.MedicationPayload;
 import com.musalasoft.dronefleet.service.DispatchService;
 import com.musalasoft.dronefleet.service.DroneService;
 import jakarta.validation.Valid;
@@ -35,8 +37,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class DispatchController {
     private final DispatchService dispatchService;
-    private final DroneService droneService;
     private final DroneMapper droneMapper;
+    private final MedicationMapper medicationMapper;
 
 
     @PutMapping(path = "load-by-id/{droneId}")
@@ -71,10 +73,10 @@ public class DispatchController {
         return Mono.empty();
     }
 
-    @GetMapping("payload-by-sn/{droneSn}")
-    Mono<DronePayloadDTO> findDronePayloadByDroneSerialNumber(@PathVariable("droneSn") String droneSn) {
-        // TODO implement
-        return Mono.empty();
+    @GetMapping(path = "payload-by-sn/{droneSerialNumber}", consumes = ALL_VALUE)
+    Flux<MedicationPayload> findDronePayloadByDroneSerialNumber(@PathVariable("droneSerialNumber") String droneSn) {
+        return dispatchService.findMedicationPayloadByDroneSn(droneSn)
+                .map(medicationMapper::mapMedicationPayloadEntity);
     }
 
 }

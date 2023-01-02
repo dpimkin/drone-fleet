@@ -15,10 +15,17 @@ public interface DroneRepository extends ReactiveCrudRepository<DroneEntity, Lon
 
     @Query("""
             SELECT * FROM drone
-            WHERE drone_state = 'IDLE' OR drone_state = 'LOADING'
-            LIMIT $1             
+            WHERE (drone_state = 'IDLE' OR drone_state = 'LOADING') AND battery_cap >= $1 
+            LIMIT $2             
             """)
-    Flux<DroneEntity> findAvailableDrones(int limit);
+    Flux<DroneEntity> findAvailableDrones(int batteryCapThreshold, int limit);
+
+    @Query("""
+        SELECT * FROM drone
+        WHERE sn = $1
+        FOR UPDATE SKIP LOCKED;
+        """)
+    Mono<DroneEntity> lockDroneBySerialNumberForLoading(String sn);
 
 
 }

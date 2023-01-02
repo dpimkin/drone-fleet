@@ -23,7 +23,7 @@ public class MedicationPayload {
     @Positive
     Integer weight;
 
-    String imageUrl;
+    String image;
 
     @NotNull(message = "qty is required")
     @Positive

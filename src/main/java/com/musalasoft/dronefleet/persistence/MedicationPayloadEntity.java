@@ -11,5 +11,5 @@ public record MedicationPayloadEntity(@Id Long id,
                                       @Column String name,
                                       @Column Integer weight,
                                       @Column Integer qty,
-                                      @Column String image) {
+                                      @Column("image") String image) {
 }
