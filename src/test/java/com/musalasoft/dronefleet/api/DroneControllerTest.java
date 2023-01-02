@@ -3,6 +3,7 @@ package com.musalasoft.dronefleet.api;
 import com.musalasoft.dronefleet.DockerizedTestSupport;
 import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DroneModelType;
+import com.musalasoft.dronefleet.domain.DroneState;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
 import static com.musalasoft.dronefleet.domain.DroneModelType.CRUISERWEIGHT;
+import static com.musalasoft.dronefleet.domain.DroneModelType.MIDDLEWEIGHT;
+import static com.musalasoft.dronefleet.domain.DroneState.DELIVERING;
 import static com.musalasoft.dronefleet.domain.DroneState.IDLE;
 import static com.musalasoft.dronefleet.domain.DroneState.RETURNING;
 import static org.junit.Assert.assertEquals;
@@ -99,6 +102,42 @@ class DroneControllerTest extends DockerizedTestSupport {
         registerDrone(generateValidDroneRequestDTO().setBatteryCapacity(batteryCapacity))
                 .expectStatus()
                 .isBadRequest();
+    }
+
+    @Test
+    void fetchDroneBySn_isOk() {
+        final var expectedSerialNumber = "FETCHDRONEBYSN";
+        final var expectedState = DELIVERING;
+        final var expectedType = MIDDLEWEIGHT;
+        final var expectedBatteryCapacity = 37;
+        final var expectedWeightLimit = 120;
+
+        var provisioning = registerDrone(new RegisterDroneRequestDTO()
+                .setSerialNumber(expectedSerialNumber)
+                .setWeightLimit(expectedWeightLimit)
+                .setBatteryCapacity(expectedBatteryCapacity)
+                .setModelType(expectedType)
+                .setState(expectedState))
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        long droneId = Long.parseLong(provisioning);
+
+        var actualResult = fetchDroneBySerialNumber(expectedSerialNumber)
+                .expectStatus()
+                .isOk()
+                .expectBody(DroneDTO.class)
+                .returnResult()
+                .getResponseBody();
+
+        assertEquals(droneId, actualResult.getId().longValue());
+        assertEquals(expectedBatteryCapacity, actualResult.getBatteryCapacity().intValue());
+        assertEquals(expectedWeightLimit, actualResult.getWeightLimit().intValue());
+        assertEquals(expectedState, actualResult.getState());
+        assertEquals(expectedType, actualResult.getModelType());
     }
 
 
