@@ -41,14 +41,6 @@ public class DispatchController {
     private final MedicationMapper medicationMapper;
 
 
-//    @PutMapping(path = "load-by-id/{droneId}")
-//    Mono<ResponseEntity<String>> loadDroneById(@Valid @RequestBody DronePayloadDTO request,
-//                                               @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey,
-//                                               @PathVariable("droneId") String droneId) {
-//        // TODO implement
-//        return Mono.just(ResponseEntity.ok().build());
-//    }
-
     @PutMapping(path = "{droneSn}")
     Mono<ResponseEntity<String>> loadDrone(@Valid @RequestBody DronePayloadDTO request,
                                            @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey,
@@ -57,6 +49,8 @@ public class DispatchController {
         if (isInvalidIdempotencyKey(idempotencyKey)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
+
+        //if (request.getPayloadList().size() == 0)
 
         return Mono.just(ResponseEntity.ok().build());
     }
@@ -69,12 +63,6 @@ public class DispatchController {
 
         return dispatchService.findAvailableDrones(limit)
                 .map(droneMapper::mapDroneEntity);
-    }
-
-    @GetMapping("payload-by-id/{droneId}")
-    Mono<DronePayloadDTO> findDronePayloadByDroneId(@PathVariable("droneId") String droneId) {
-        // TODO implement
-        return Mono.empty();
     }
 
     @GetMapping(path = "payload-by-sn/{droneSerialNumber}", consumes = ALL_VALUE)

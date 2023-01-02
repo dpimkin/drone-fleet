@@ -1,6 +1,7 @@
 package com.musalasoft.dronefleet.domain;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -13,5 +14,6 @@ public class DronePayloadDTO {
 
     @NotNull
     @Valid
+    @NotEmpty
     List<MedicationPayload> payloadList;
 }

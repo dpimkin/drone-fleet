@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +41,13 @@ class DispatchControllerTest extends DockerizedTestSupport {
     @Test
     void loadDrone_withEmptyIdempotencyKey() {
         loadDrone("30", new DronePayloadDTO().setPayloadList(List.of(generateValidMedicationPayload())), "")
+                .expectStatus()
+                .isBadRequest();
+    }
+
+    @Test
+    void loadDrone_withEmptyMedications() {
+        loadDrone("30", new DronePayloadDTO().setPayloadList(new ArrayList<>()))
                 .expectStatus()
                 .isBadRequest();
     }
