@@ -6,7 +6,6 @@ import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DronePayloadDTO;
 import com.musalasoft.dronefleet.domain.MedicationPayload;
 import com.musalasoft.dronefleet.service.DispatchService;
-import com.musalasoft.dronefleet.service.DroneService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import static com.musalasoft.dronefleet.api.Endpoints.DISPATCH_ENDPOINT;
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
+import static com.musalasoft.dronefleet.boundary.IdempotencyUtils.isInvalidIdempotencyKey;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -41,19 +41,23 @@ public class DispatchController {
     private final MedicationMapper medicationMapper;
 
 
-    @PutMapping(path = "load-by-id/{droneId}")
-    Mono<ResponseEntity<String>> loadDroneById(@Valid @RequestBody DronePayloadDTO request,
-                                               @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey,
-                                               @PathVariable("droneId") String droneId) {
-        // TODO implement
-        return Mono.just(ResponseEntity.ok().build());
-    }
+//    @PutMapping(path = "load-by-id/{droneId}")
+//    Mono<ResponseEntity<String>> loadDroneById(@Valid @RequestBody DronePayloadDTO request,
+//                                               @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey,
+//                                               @PathVariable("droneId") String droneId) {
+//        // TODO implement
+//        return Mono.just(ResponseEntity.ok().build());
+//    }
 
-    @PutMapping(path = "load-by-sn/{droneSn}")
-    Mono<ResponseEntity<String>> loadDroneBySerialNumber(@Valid @RequestBody DronePayloadDTO request,
-                                                         @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey,
-                                                         @PathVariable("droneSn") String droneSn) {
-        // TODO implement
+    @PutMapping(path = "{droneSn}")
+    Mono<ResponseEntity<String>> loadDrone(@Valid @RequestBody DronePayloadDTO request,
+                                           @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey,
+                                           @PathVariable("droneSn") String droneSn) {
+
+        if (isInvalidIdempotencyKey(idempotencyKey)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
         return Mono.just(ResponseEntity.ok().build());
     }
 
