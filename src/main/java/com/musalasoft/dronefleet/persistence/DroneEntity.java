@@ -11,5 +11,8 @@ import org.springframework.data.relational.core.mapping.Table;
 public record DroneEntity(@Id Long id,
                           @Column("sn") String serialNumber,
                           @Column("drone_type") DroneModelType type,
-                          @Column("drone_state") DroneState state) {
+                          @Column("drone_state") DroneState state,
+                          @Column("battery_cap") Integer batteryCapacity,
+                          @Column("weight_cap") Integer weightCapacity,
+                          @Column("weight_max") Integer weightLimit) {
 }

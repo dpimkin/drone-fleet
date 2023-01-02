@@ -1,28 +1,30 @@
 CREATE SEQUENCE drone_seq AS BIGINT;
 
-CREATE TABLE drone (
-    id BIGINT PRIMARY KEY DEFAULT nextval('drone_seq'),
-    sn varchar(100) NOT NULL,
-    drone_type varchar(30) NOT NULL,
-    drone_state varchar(30) NOT NULL
+CREATE TABLE drone
+(
+    id          BIGINT PRIMARY KEY DEFAULT nextval('drone_seq'),
+    sn          varchar(100) NOT NULL,
+    battery_cap INTEGER      NOT NULL,
+    weight_cap  INTEGER      NOT NULL,
+    weight_max  INTEGER      NOT NULL,
+    drone_type  varchar(30)  NOT NULL,
+    drone_state varchar(30)  NOT NULL
 );
 
 
-CREATE UNIQUE INDEX sn_unique ON drone(sn);
+CREATE UNIQUE INDEX sn_unique ON drone (sn);
 
 CREATE SEQUENCE idempotent_operation_seq AS BIGINT;
 
-CREATE TABLE idempotent_operation(
+CREATE TABLE idempotent_operation
+(
     id              BIGINT PRIMARY KEY DEFAULT nextval('idempotent_operation_seq'),
     idempotency_key VARCHAR(64),
     status          INTEGER,
     created         TIMESTAMP
 );
 
-CREATE UNIQUE INDEX idempotency_key_unique ON idempotent_operation(idempotency_key);
-
-
-
+CREATE UNIQUE INDEX idempotency_key_unique ON idempotent_operation (idempotency_key);
 
 
 

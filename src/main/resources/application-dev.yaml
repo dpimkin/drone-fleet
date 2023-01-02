@@ -23,4 +23,5 @@ logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
+    com.musalasoft.dronefleet: DEBUG
 

@@ -1,16 +1,16 @@
 package com.musalasoft.dronefleet.api;
 
+import com.musalasoft.dronefleet.boundary.DroneMapper;
 import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.domain.UpdateDroneRequestDTO;
 import com.musalasoft.dronefleet.service.DroneService;
-import io.swagger.v3.oas.models.parameters.QueryParameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,12 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 import static com.musalasoft.dronefleet.api.Endpoints.DRONE_CRUD_ENDPOINT;
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
-import static com.musalasoft.dronefleet.domain.DroneModelType.LIGHTWEIGHT;
-import static com.musalasoft.dronefleet.domain.DroneState.IDLE;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -39,10 +35,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         consumes = APPLICATION_JSON_VALUE,
         produces = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class DroneCrudController {
+public class DroneController {
     private static final int MAX_QUERY_SIZE = 50;
 
     private final DroneService droneService;
+
+    private final DroneMapper mapper;
 
     /**
      * Find all drones
@@ -55,14 +53,14 @@ public class DroneCrudController {
         return droneService.findAll(Math.min(limit, MAX_QUERY_SIZE));
     }
 
-
     /**
      * Register drone
      */
     @PostMapping
-    Mono<ResponseEntity<String>> registerDrone(@RequestBody @Valid RegisterDroneRequestDTO request,
-                                               @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
+    Mono<ResponseEntity<String>> registerDrone(@RequestBody @Valid RegisterDroneRequestDTO request) {
         return droneService.registerDrone(request)
+                .onErrorResume(DuplicateKeyException.class,
+                        e -> droneService.findDroneBySerialNumber(request.getSerialNumber()))
                 .map(doc -> ResponseEntity.ok(Long.toString(doc.id())));
     }
 
@@ -70,8 +68,9 @@ public class DroneCrudController {
      * Find drone by id.
      */
     @GetMapping(path = "{droneId}", consumes = ALL_VALUE)
-    Mono<ResponseEntity<DroneDTO>> findDroneById(@PathVariable("droneId") String droneId) {
+    Mono<ResponseEntity<DroneDTO>> findDroneById(@PathVariable("droneId") Long droneId) {
         return droneService.findDroneById(droneId)
+                .map(mapper::mapDroneEntity)
                 .map(ResponseEntity::ok);
     }
 
@@ -81,26 +80,30 @@ public class DroneCrudController {
     @GetMapping(path = "by-sn/{serialNumber}", consumes = ALL_VALUE)
     Mono<ResponseEntity<DroneDTO>> findDroneBySerialNumber(@PathVariable("serialNumber") String serialNumber) {
         return droneService.findDroneBySerialNumber(serialNumber)
+                .map(mapper::mapDroneEntity)
                 .map(ResponseEntity::ok);
     }
 
     /**
-     * Update drone state.
+     * Update drone by id.
      */
     @PutMapping(path = "{droneId}")
-    Mono<ResponseEntity<String>> updateDrone(@PathVariable("droneId") String droneId,
-                                             @RequestBody @Validated UpdateDroneRequestDTO request,
-                                             @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
+    Mono<ResponseEntity<String>> updateDroneById(@PathVariable("droneId") Long droneId,
+                                                 @RequestBody @Validated UpdateDroneRequestDTO request,
+                                                 @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
         // TODO implement
         return Mono.just(ResponseEntity.ok().build());
     }
 
     /**
-     * Mark drone as deleted
+     * Update drone by serial number.
      */
-    @DeleteMapping(path = "{droneId}", consumes = ALL_VALUE)
-    Mono<ResponseEntity<String>> deleteDrone(@PathVariable("droneId") String droneId) {
+    @PutMapping(path = "sn/{serialNumber}")
+    Mono<ResponseEntity<String>> updateDroneBySn(@PathVariable("serialNumber") String serialNumber,
+                                                 @RequestBody @Validated UpdateDroneRequestDTO request,
+                                                 @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey) {
         // TODO implement
         return Mono.just(ResponseEntity.ok().build());
     }
+
 }
