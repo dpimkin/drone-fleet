@@ -8,6 +8,8 @@ import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
 import com.musalasoft.dronefleet.service.OperationLogService.GenericIdempotentOperationContent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -30,6 +32,7 @@ public class DroneService {
 
 
     @Transactional
+    @Cacheable(cacheNames = {"drone-cache"}, key = "{#request.getSerialNumber()}")
     public Mono<DroneEntity> registerDrone(RegisterDroneRequestDTO request) {
         log.info("registering drone with s/n: '{}'", request.getSerialNumber());
         return droneRepository.save(new DroneEntity(null,
@@ -42,6 +45,7 @@ public class DroneService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = {"drone-cache"}, key = "{#sn}")
     public Mono<DroneEntity> findDroneBySn(String sn) {
         log.info("fetching drone by s/n '{}'", sn);
         return droneRepository.findBySerialNumber(sn);
@@ -58,6 +62,7 @@ public class DroneService {
      * write through idempotent operation log to ensure
      */
     @Transactional(propagation = REQUIRES_NEW)
+    @CacheEvict(cacheNames = {"drone-cache"}, key = "{#request.getSerialNumber()}")
     public Mono<Integer> updateDroneBySerialNumber(UpdateDroneDTO request) {
         return operationLogService.newIdempotentOperation(request.getIdempotencyKey())
                 .map(UpdateOperationContext::new)

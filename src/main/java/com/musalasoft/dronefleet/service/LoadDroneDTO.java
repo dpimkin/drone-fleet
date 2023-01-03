@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class LoadDroneDTO {
-    private String droneSerialNumber;
+    private String serialNumber;
     private String idempotencyKey;
     private int requiredWeight;
     private List<MedicationPayload> payloadList;

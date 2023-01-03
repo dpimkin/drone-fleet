@@ -26,29 +26,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
-
-		<!-- reactive driver for R2DBC -->
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>r2dbc-postgresql</artifactId>
-     	</dependency>
-
-
-		<!-- driver for Flyway -->
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
@@ -62,6 +39,43 @@
 			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
 			<version>${openapi.version}</version>
 		</dependency>
+
+		<!--
+		Persistence
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<!-- reactive driver for R2DBC -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>r2dbc-postgresql</artifactId>
+     	</dependency>
+		<!-- driver for Flyway -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+
+		<!--
+		Cache
+		-->
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

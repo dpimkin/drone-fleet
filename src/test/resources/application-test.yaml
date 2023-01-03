@@ -1,6 +1,9 @@
 spring:
   application:
     name: drone-fleet
+  cache:
+    cache-names: drone-cache
+    caffeine.spec: maximumSize=500,expireAfterAccess=60s
 
 logging:
   level:

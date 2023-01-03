@@ -58,7 +58,7 @@ public class DispatchController {
 
         var request = new LoadDroneDTO()
                 .setIdempotencyKey(droneSn + idempotencyKey)
-                .setDroneSerialNumber(droneSn)
+                .setSerialNumber(droneSn)
                 .setRequiredWeight(WeightUtil.calculateWeight(requestBody.getPayloadList()))
                 .setPayloadList(requestBody.getPayloadList());
 

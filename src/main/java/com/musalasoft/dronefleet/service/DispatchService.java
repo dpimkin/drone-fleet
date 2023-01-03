@@ -9,6 +9,7 @@ import com.musalasoft.dronefleet.persistence.MedicationPayloadRepository;
 import com.musalasoft.dronefleet.service.OperationLogService.GenericIdempotentOperationContent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -44,10 +45,11 @@ public class DispatchService {
     }
 
     @Transactional(propagation = REQUIRES_NEW)
+    @CacheEvict(cacheNames = {"drone-cache"}, key = "{#request.getSerialNumber()}")
     public Mono<Integer> loadDrone(LoadDroneDTO request) {
         return operationLogService.newIdempotentOperation(request.getIdempotencyKey())
                 .map(LoadMedicationOperationContext::new)
-                .flatMap(context -> droneRepository.lockDroneBySerialNumberForLoading(request.getDroneSerialNumber())
+                .flatMap(context -> droneRepository.lockDroneBySerialNumberForLoading(request.getSerialNumber())
                         .map(context::setDroneEntity))
                 .flatMap(context -> mergeDroneEntity(request, context.getDroneEntity())
                         .map(entity -> context))
@@ -65,7 +67,7 @@ public class DispatchService {
 
     private Mono<DroneEntity> mergeDroneEntity(LoadDroneDTO request, DroneEntity entity) {
         if (entity.state() != IDLE && entity.state() != LOADING) {
-            var message = "Allowed only idle and loading drones. Drone s/n " + request.getDroneSerialNumber()
+            var message = "Allowed only idle and loading drones. Drone s/n " + request.getSerialNumber()
                     + " is " + entity.state();
             log.error(message);
             return Mono.error(new IllegalDroneStateException(message));
@@ -97,9 +99,6 @@ public class DispatchService {
         return droneRepository.save(merged);
     }
 
-
-
-
     static class LoadMedicationOperationContext extends GenericIdempotentOperationContent {
         final AtomicReference<DroneEntity> droneEntityRef = new AtomicReference<>();
 
@@ -116,6 +115,4 @@ public class DispatchService {
             return this;
         }
     }
-
-
 }

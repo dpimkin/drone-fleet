@@ -5,12 +5,14 @@ import com.musalasoft.dronefleet.boundary.MedicationMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import static com.musalasoft.dronefleet.r2dbc.DriverHostnameResolveWorkaround.resolveDatabaseHostName;
 
 
+@EnableCaching
 @EnableScheduling
 @SpringBootApplication(proxyBeanMethods = false)
 public class App {

@@ -35,7 +35,7 @@ public abstract class DockerizedTestSupport {
         // endregion
     }
 
-    private static PostgreSQLContainer<?> createDatabaseInstance() {
+    public static PostgreSQLContainer<?> createDatabaseInstance() {
         int containerPort = 5432 ;
         int localPort = 5432 ;
         PostgreSQLContainer<?> container = new PostgreSQLContainer(POSTGRESQL_IMAGE) {{

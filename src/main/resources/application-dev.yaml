@@ -10,6 +10,10 @@ spring:
     user: alt_cunningham
     password: s0ulki113r
     driver-class-name: org.postgresql.Driver
+  cache:
+    cache-names: drone-cache
+    caffeine.spec: maximumSize=500,expireAfterAccess=60s
+
 
 springdoc:
   enable-hateoas: false

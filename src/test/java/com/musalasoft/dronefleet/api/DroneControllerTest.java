@@ -5,6 +5,7 @@ import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DroneModelType;
 import com.musalasoft.dronefleet.domain.RegisterDroneRequestDTO;
 import com.musalasoft.dronefleet.domain.UpdateDroneRequestDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
@@ -12,25 +13,36 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static com.musalasoft.dronefleet.DockerizedTestSupport.createDatabaseInstance;
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
 import static com.musalasoft.dronefleet.domain.DroneModelType.HEAVYWEIGHT;
 import static com.musalasoft.dronefleet.domain.DroneModelType.MIDDLEWEIGHT;
 import static com.musalasoft.dronefleet.domain.DroneState.DELIVERED;
 import static com.musalasoft.dronefleet.domain.DroneState.DELIVERING;
 import static com.musalasoft.dronefleet.domain.DroneState.IDLE;
+import static java.lang.Boolean.TRUE;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+@Slf4j
+@Testcontainers
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
         "logging.level.io.r2dbc.postgresql.QUERY=DEBUG",
         "logging.level.io.r2dbc.postgresql.PARAM=DEBUG"})
-class DroneControllerTest extends DockerizedTestSupport {
+class DroneControllerTest {
+    @Container
+    final static PostgreSQLContainer<?> POSTGRES = createDatabaseInstance();
 
     private static int droneSerialNumberCounter = 1;
 
@@ -134,25 +146,13 @@ class DroneControllerTest extends DockerizedTestSupport {
 
     @Test
     void fetchDrone_isOk() {
-        final var expectedSerialNumber = "FETCHDRONEBYSN";
+        final var droneId = 8;
+        final var expectedSerialNumber = "007";
         final var expectedState = DELIVERING;
-        final var expectedType = MIDDLEWEIGHT;
-        final var expectedBatteryCapacity = 37;
-        final var expectedWeightLimit = 120;
-
-        var provisioning = registerDrone(new RegisterDroneRequestDTO()
-                .setSerialNumber(expectedSerialNumber)
-                .setWeightLimit(expectedWeightLimit)
-                .setBatteryCapacity(expectedBatteryCapacity)
-                .setModelType(expectedType)
-                .setState(expectedState))
-                .expectStatus()
-                .isOk()
-                .expectBody(String.class)
-                .returnResult()
-                .getResponseBody();
-
-        long droneId = Long.parseLong(provisioning);
+        final var expectedType = HEAVYWEIGHT;
+        final var expectedBatteryCapacity = 24;
+        final var expectedWeightCap = 100;
+        final var expectedWeightLimit = 450;
 
         var actualResult = fetchDrone(expectedSerialNumber)
                 .expectStatus()
@@ -164,6 +164,7 @@ class DroneControllerTest extends DockerizedTestSupport {
         assertEquals(droneId, actualResult.getId().longValue());
         assertEquals(expectedBatteryCapacity, actualResult.getBatteryCapacity().intValue());
         assertEquals(expectedWeightLimit, actualResult.getWeightLimit().intValue());
+        assertEquals(expectedWeightCap, actualResult.getWeightCapacity().intValue());
         assertEquals(expectedState, actualResult.getState());
         assertEquals(expectedType, actualResult.getModelType());
     }
@@ -200,5 +201,22 @@ class DroneControllerTest extends DockerizedTestSupport {
                 .setWeightLimit(450)
                 .setBatteryCapacity(80)
                 .setState(IDLE);
+    }
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        // region Flyway
+        registry.add("spring.flyway.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.flyway.user", POSTGRES::getUsername);
+        registry.add("spring.flyway.password", POSTGRES::getPassword);
+        registry.add("spring.flyway.driver-class-name", POSTGRES::getDriverClassName);
+        // endregion
+
+
+        // region R2DBC
+        registry.add("spring.r2dbc.url", () -> POSTGRES.getJdbcUrl().replace("jdbc", "r2dbc:pool"));
+        registry.add("spring.r2dbc.username", POSTGRES::getUsername);
+        registry.add("spring.r2dbc.password", POSTGRES::getPassword);
+        // endregion
     }
 }
