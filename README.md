@@ -43,6 +43,7 @@ docker-compose down
 
 [Swagger UI](http://localhost:8088/swagger-ui.html)
 
+[REST API package](https://github.com/dpimkin/drone-fleet/tree/main/src/main/java/dpimkin/drone/fleet/api)
 
 ## Software architecture design
 
