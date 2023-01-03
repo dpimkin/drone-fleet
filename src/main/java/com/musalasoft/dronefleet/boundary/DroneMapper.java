@@ -1,8 +1,6 @@
 package com.musalasoft.dronefleet.boundary;
 
 import com.musalasoft.dronefleet.domain.DroneDTO;
-import com.musalasoft.dronefleet.domain.DroneModelType;
-import com.musalasoft.dronefleet.domain.DroneState;
 import com.musalasoft.dronefleet.persistence.DroneEntity;
 import org.mapstruct.Mapper;
 

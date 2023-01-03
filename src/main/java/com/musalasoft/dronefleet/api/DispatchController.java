@@ -6,10 +6,7 @@ import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DronePayloadDTO;
 import com.musalasoft.dronefleet.domain.MedicationPayload;
 import com.musalasoft.dronefleet.domain.WeightUtil;
-import com.musalasoft.dronefleet.persistence.DroneEntity;
-import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
 import com.musalasoft.dronefleet.service.DispatchService;
-import com.musalasoft.dronefleet.service.DroneService;
 import com.musalasoft.dronefleet.service.LoadDroneDTO;
 import com.musalasoft.dronefleet.service.OperationLogService;
 import com.musalasoft.dronefleet.service.StalledOperationException;
@@ -28,12 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import static com.musalasoft.dronefleet.api.Endpoints.DISPATCH_ENDPOINT;
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
 import static com.musalasoft.dronefleet.boundary.IdempotencyUtils.isInvalidIdempotencyKey;
-import static com.musalasoft.dronefleet.service.OperationLogService.*;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -86,7 +80,7 @@ public class DispatchController {
                 .map(droneMapper::mapDroneEntity);
     }
 
-    @GetMapping(path = "payload-by-sn/{droneSerialNumber}", consumes = ALL_VALUE)
+    @GetMapping(path = "{droneSerialNumber}", consumes = ALL_VALUE)
     Flux<MedicationPayload> findDronePayloadByDroneSerialNumber(@PathVariable("droneSerialNumber") String droneSn) {
         return dispatchService.findMedicationPayloadByDroneSn(droneSn)
                 .map(medicationMapper::mapMedicationPayloadEntity);

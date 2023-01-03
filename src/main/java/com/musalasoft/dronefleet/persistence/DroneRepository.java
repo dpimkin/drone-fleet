@@ -15,6 +15,12 @@ public interface DroneRepository extends ReactiveCrudRepository<DroneEntity, Lon
 
     @Query("""
             SELECT * FROM drone
+            WHERE battery_cap < $1
+            """)
+    Flux<DroneEntity> findDronesWithLowBattery(int batteryCapThreshold);
+
+    @Query("""
+            SELECT * FROM drone
             WHERE (drone_state = 'IDLE' OR drone_state = 'LOADING') AND battery_cap >= $1 
             LIMIT $2             
             """)

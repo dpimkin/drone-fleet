@@ -1,7 +1,6 @@
 package com.musalasoft.dronefleet.service;
 
 import com.musalasoft.dronefleet.boundary.MedicationMapper;
-import com.musalasoft.dronefleet.domain.DroneState;
 import com.musalasoft.dronefleet.persistence.DroneEntity;
 import com.musalasoft.dronefleet.persistence.DroneRepository;
 import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
@@ -16,11 +15,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static com.musalasoft.dronefleet.domain.DroneState.IDLE;
 import static com.musalasoft.dronefleet.domain.DroneState.LOADING;
-import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
