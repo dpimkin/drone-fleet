@@ -5,7 +5,14 @@ import com.musalasoft.dronefleet.boundary.MedicationMapper;
 import com.musalasoft.dronefleet.domain.DroneDTO;
 import com.musalasoft.dronefleet.domain.DronePayloadDTO;
 import com.musalasoft.dronefleet.domain.MedicationPayload;
+import com.musalasoft.dronefleet.domain.WeightUtil;
+import com.musalasoft.dronefleet.persistence.DroneEntity;
+import com.musalasoft.dronefleet.persistence.IdempotentOperationEntity;
 import com.musalasoft.dronefleet.service.DispatchService;
+import com.musalasoft.dronefleet.service.DroneService;
+import com.musalasoft.dronefleet.service.LoadDroneDTO;
+import com.musalasoft.dronefleet.service.OperationLogService;
+import com.musalasoft.dronefleet.service.StalledOperationException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import static com.musalasoft.dronefleet.api.Endpoints.DISPATCH_ENDPOINT;
 import static com.musalasoft.dronefleet.api.Params.IDEMPOTENCY_KEY_HEADER;
 import static com.musalasoft.dronefleet.boundary.IdempotencyUtils.isInvalidIdempotencyKey;
+import static com.musalasoft.dronefleet.service.OperationLogService.*;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -37,12 +47,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class DispatchController {
     private final DispatchService dispatchService;
+
+    private final OperationLogService operationLogService;
     private final DroneMapper droneMapper;
     private final MedicationMapper medicationMapper;
 
 
     @PutMapping(path = "{droneSn}")
-    Mono<ResponseEntity<String>> loadDrone(@Valid @RequestBody DronePayloadDTO request,
+    Mono<ResponseEntity<String>> loadDrone(@Valid @RequestBody DronePayloadDTO requestBody,
                                            @RequestHeader(IDEMPOTENCY_KEY_HEADER) String idempotencyKey,
                                            @PathVariable("droneSn") String droneSn) {
 
@@ -50,9 +62,18 @@ public class DispatchController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        //if (request.getPayloadList().size() == 0)
+        var request = new LoadDroneDTO()
+                .setIdempotencyKey(droneSn + idempotencyKey)
+                .setDroneSerialNumber(droneSn)
+                .setRequiredWeight(WeightUtil.calculateWeight(requestBody.getPayloadList()))
+                .setPayloadList(requestBody.getPayloadList());
 
-        return Mono.just(ResponseEntity.ok().build());
+        return dispatchService.loadDrone(request)
+                // get stalled operation result
+                .onErrorResume(StalledOperationException.class,
+                        (e) -> operationLogService.fetchOperationResult(request.getIdempotencyKey()))
+
+                .map(status -> ResponseEntity.status(status).body(""));
     }
 
     @GetMapping(path = "available-drones", consumes = ALL_VALUE)
@@ -70,5 +91,6 @@ public class DispatchController {
         return dispatchService.findMedicationPayloadByDroneSn(droneSn)
                 .map(medicationMapper::mapMedicationPayloadEntity);
     }
+
 
 }

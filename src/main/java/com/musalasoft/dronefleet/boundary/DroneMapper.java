@@ -20,13 +20,4 @@ public interface DroneMapper {
                 .setState(doc.state());
 
     }
-
-//    default DroneState mapDroneState(Integer ordinal) {
-//        return DroneState.values()[ordinal];
-//    }
-//
-//    default DroneModelType mapDroneModelType(Integer ordinal) {
-//        return DroneModelType.values()[ordinal];
-//    }
-
 }

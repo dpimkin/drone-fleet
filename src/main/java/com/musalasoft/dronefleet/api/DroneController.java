@@ -98,13 +98,12 @@ public class DroneController {
                 .setState(requestBody.getState())
                 .setIdempotencyKey(serialNumber + idempotencyKey);
 
-        var result = droneService.updateDroneBySerialNumber(request)
+        return droneService.updateDroneBySerialNumber(request)
 
                 // get stalled operation result
                 .onErrorResume(StalledOperationException.class,
                         (e) -> operationLogService.fetchOperationResult(request.getIdempotencyKey()))
 
                 .map(status -> ResponseEntity.status(status).body(""));
-        return result;
     }
 }

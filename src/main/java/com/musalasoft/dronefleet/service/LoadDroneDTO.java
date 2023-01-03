@@ -7,12 +7,10 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 @Data
-@Accessors(fluent = true)
+@Accessors(chain = true)
 public class LoadDroneDTO {
-
-    String droneSerialNumber;
-
-    int requiredWeight;
-
-    List<MedicationPayload> payloadList;
+    private String droneSerialNumber;
+    private String idempotencyKey;
+    private int requiredWeight;
+    private List<MedicationPayload> payloadList;
 }

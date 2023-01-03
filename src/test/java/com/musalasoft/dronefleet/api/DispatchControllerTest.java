@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
@@ -24,6 +25,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@TestPropertySource(properties = {
+        "logging.level.io.r2dbc.postgresql.QUERY=DEBUG",
+        "logging.level.io.r2dbc.postgresql.PARAM=DEBUG"})
 class DispatchControllerTest extends DockerizedTestSupport {
 
     @Autowired
@@ -32,10 +36,12 @@ class DispatchControllerTest extends DockerizedTestSupport {
     @ParameterizedTest
     @ValueSource(strings = {"fOO", "Bar", "foobar-1", "baz_3"})
     void loadDrone_isOkWithName(String name) {
-        loadDrone("30", new DronePayloadDTO().setPayloadList(List.of(generateValidMedicationPayload()
+        loadDrone("006", new DronePayloadDTO().setPayloadList(List.of(generateValidMedicationPayload()
                 .setName(name))))
                 .expectStatus()
                 .isOk();
+
+
     }
 
     @Test
@@ -61,7 +67,6 @@ class DispatchControllerTest extends DockerizedTestSupport {
                 .expectStatus()
                 .isBadRequest();
     }
-
 
     @ParameterizedTest
     @NullSource

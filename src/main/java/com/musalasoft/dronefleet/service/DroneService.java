@@ -9,6 +9,7 @@ import com.musalasoft.dronefleet.service.OperationLogService.GenericIdempotentOp
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 
 @Slf4j
@@ -56,7 +58,7 @@ public class DroneService {
     /**
      * write through idempotent operation log to ensure
      */
-    @Transactional
+    @Transactional(propagation = REQUIRES_NEW)
     public Mono<Integer> updateDroneBySerialNumber(UpdateDroneDTO request) {
         return operationLogService.newIdempotentOperation(request.getIdempotencyKey())
                 .map(UpdateOperationContext::new)
@@ -80,8 +82,8 @@ public class DroneService {
 
         if (merged.batteryCapacity() < settings.lowBatteryThreshold) {
             if (request.getState() == DroneState.LOADING) {
-                var message = "Battery is too low for loading drone with id " + entity.id() +
-                        ". Wait until " + settings.lowBatteryThreshold + "%";
+                var message = "Battery is too low for loading drone with s/n " + entity.serialNumber() +
+                        ". Wait at least " + settings.lowBatteryThreshold + "% drone battery";
                 log.error(message);
                 return Mono.error(new LowBatteryException(message));
             }
