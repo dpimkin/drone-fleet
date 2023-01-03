@@ -1,3 +1,5 @@
+BEGIN;
+
 CREATE SEQUENCE drone_seq AS BIGINT;
 CREATE TABLE drone
 (
@@ -10,6 +12,8 @@ CREATE TABLE drone
     drone_state varchar(30)  NOT NULL
 );
 CREATE UNIQUE INDEX sn_unique ON drone (sn);
+CREATE INDEX drone_sn_battery_cap ON drone(sn,battery_cap);
+CREATE INDEX drone_type_battery_cap ON drone(drone_type,battery_cap);
 
 CREATE SEQUENCE medication_seq AS BIGINT;
 CREATE TABLE medication_payload
@@ -35,3 +39,4 @@ CREATE TABLE operation_log
 );
 CREATE UNIQUE INDEX idempotency_key_unique ON operation_log (idempotency_key);
 
+COMMIT;

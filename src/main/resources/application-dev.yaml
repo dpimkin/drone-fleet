@@ -14,6 +14,16 @@ spring:
     cache-names: drone-cache
     caffeine.spec: maximumSize=500,expireAfterAccess=60s
 
+management:
+  endpoint.health.show-details: always
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "health,metrics"
+    jmx.exposure.exclude: "*"
+
+drone-fleet:
+  audit.rateMs: 120000
+  low-battery-threshold: 25
 
 springdoc:
   enable-hateoas: false

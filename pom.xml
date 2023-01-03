@@ -8,7 +8,7 @@
 		<version>3.0.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.musalasoft</groupId>
+	<groupId>com.dpimkin</groupId>
 	<artifactId>drone-fleet</artifactId>
 	<version>1.0.0</version>
 	<name>drone-fleet</name>
